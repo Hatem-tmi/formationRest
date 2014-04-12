@@ -25,6 +25,8 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -38,9 +40,10 @@ import android.widget.Toast;
 import com.formation.formationrest.R;
 import com.formation.formationrest.adapter.UsersAdapter;
 import com.formation.formationrest.data.User;
+import com.formation.formationrest.service.UpdaterService;
 
-public class UsersActivity extends Activity implements OnItemClickListener, OnClickListener, OnItemLongClickListener
-{
+public class UsersActivity extends Activity implements OnItemClickListener,
+		OnClickListener, OnItemLongClickListener {
 	private static final String TAG = UsersActivity.class.getSimpleName();
 
 	private static final String WS_URL = "http://10.0.2.2/projects/webservice-project/users.php";
@@ -56,8 +59,7 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	private List<User> data = new ArrayList<User>();
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
+	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.users_layout);
 
@@ -79,19 +81,40 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
 		super.onResume();
 
 		// fetch data
 		new FetchDataAsynck().execute(WS_URL);
 	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.startService:
+			// Start UpdaterService
+			startService(new Intent(getApplicationContext(),
+					UpdaterService.class));
+			break;
+		case R.id.stopService:
+			// Stop UpdaterService
+			stopService(new Intent(getApplicationContext(),
+					UpdaterService.class));
+			break;
+		}
+		return true;
+	}
+
 	/**
 	 * Add User to data and refresh listview
 	 */
-	private void addUser()
-	{
+	private void addUser() {
 		// User user = new User();
 		// user.setId(data.size());
 		// user.setName("Name-" + data.size());
@@ -102,7 +125,8 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 		// data.add(0, user);
 		// adapter.notifyDataSetChanged();
 
-		startActivity(new Intent(getApplicationContext(), CreateUserActivity.class));
+		startActivity(new Intent(getApplicationContext(),
+				CreateUserActivity.class));
 	}
 
 	/**
@@ -110,8 +134,7 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	 * 
 	 * @param user
 	 */
-	private void removeUser(User user)
-	{
+	private void removeUser(User user) {
 		data.remove(user);
 		adapter.notifyDataSetChanged();
 	}
@@ -121,20 +144,19 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	 * 
 	 * @param user
 	 */
-	private void showRemoveConfirmationDialog(final User user)
-	{
+	private void showRemoveConfirmationDialog(final User user) {
 		AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
-		alertDialogBuilder.setTitle("Suppression d'un Utilisateur").setMessage("Voulez-vous vraiment supprimer?")
+		alertDialogBuilder.setTitle("Suppression d'un Utilisateur")
+				.setMessage("Voulez-vous vraiment supprimer?")
 				.setCancelable(false);
 
-		alertDialogBuilder.setPositiveButton("Oui", new DialogInterface.OnClickListener()
-		{
-			@Override
-			public void onClick(DialogInterface dialog, int id)
-			{
-				removeUser(user);
-			}
-		});
+		alertDialogBuilder.setPositiveButton("Oui",
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int id) {
+						removeUser(user);
+					}
+				});
 
 		alertDialogBuilder.setNegativeButton("Non", null);
 
@@ -143,33 +165,33 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	}
 
 	@Override
-	public void onItemClick(AdapterView<?> parent, View view, int position, long id)
-	{
-		Toast.makeText(this, String.format("User item at position %s is clicked", position), Toast.LENGTH_SHORT).show();
+	public void onItemClick(AdapterView<?> parent, View view, int position,
+			long id) {
+		Toast.makeText(this,
+				String.format("User item at position %s is clicked", position),
+				Toast.LENGTH_SHORT).show();
 	}
 
 	@Override
-	public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id)
-	{
+	public boolean onItemLongClick(AdapterView<?> parent, View view,
+			int position, long id) {
 		showRemoveConfirmationDialog(data.get(position));
 		return true;
 	}
 
 	@Override
-	public void onClick(View view)
-	{
-		switch (view.getId())
-		{
-			case R.id.addUserButton:
-				addUser();
+	public void onClick(View view) {
+		switch (view.getId()) {
+		case R.id.addUserButton:
+			addUser();
 			break;
-			case R.id.backButton:
-				finish();
-			case R.id.refreshButton:
-				// fetch data
-				new FetchDataAsynck().execute(WS_URL);
+		case R.id.backButton:
+			finish();
+		case R.id.refreshButton:
+			// fetch data
+			new FetchDataAsynck().execute(WS_URL);
 			break;
-			default:
+		default:
 			break;
 		}
 	}
@@ -178,27 +200,25 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 	 * Fetch data AsynckTask
 	 * 
 	 */
-	private class FetchDataAsynck extends AsyncTask<String, Void, List<User>>
-	{
+	private class FetchDataAsynck extends AsyncTask<String, Void, List<User>> {
 
 		@Override
-		protected void onPreExecute()
-		{
+		protected void onPreExecute() {
 			progressBar.setVisibility(View.VISIBLE);
 			listView.setVisibility(View.GONE);
 		}
 
 		@Override
-		protected List<User> doInBackground(String... params)
-		{
+		protected List<User> doInBackground(String... params) {
 			List<User> result = new ArrayList<User>();
 
-			try
-			{
+			try {
 				// Invoke ws to get data
 				HttpParams httpParams = new BasicHttpParams();
-				HttpConnectionParams.setConnectionTimeout(httpParams, CONNECTION_TIMEOUT);
-				HttpConnectionParams.setSoTimeout(httpParams, CONNECTION_TIMEOUT);
+				HttpConnectionParams.setConnectionTimeout(httpParams,
+						CONNECTION_TIMEOUT);
+				HttpConnectionParams.setSoTimeout(httpParams,
+						CONNECTION_TIMEOUT);
 
 				// Instantiate an HttpClient
 				HttpClient httpClient = new DefaultHttpClient(httpParams);
@@ -206,8 +226,9 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 				HttpResponse httpResponse = httpClient.execute(httpGet);
 
 				// Get string data from response
-				BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(httpResponse.getEntity()
-						.getContent()));
+				BufferedReader bufferedReader = new BufferedReader(
+						new InputStreamReader(httpResponse.getEntity()
+								.getContent()));
 				StringBuilder sb = new StringBuilder();
 				String line = null;
 				while ((line = bufferedReader.readLine()) != null)
@@ -218,8 +239,7 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 				// Parse received json data
 				JSONObject jsonResult = new JSONObject(sb.toString());
 				JSONArray usersArray = (JSONArray) jsonResult.get("users");
-				for (int i = 0; i < usersArray.length(); i++)
-				{
+				for (int i = 0; i < usersArray.length(); i++) {
 					JSONObject userObject = (JSONObject) usersArray.get(i);
 
 					User user = new User();
@@ -231,21 +251,13 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 
 					result.add(user);
 				}
-			}
-			catch (MalformedURLException e)
-			{
+			} catch (MalformedURLException e) {
 				Log.e(TAG, "", e);
-			}
-			catch (IOException e)
-			{
+			} catch (IOException e) {
 				Log.e(TAG, "", e);
-			}
-			catch (JSONException e)
-			{
+			} catch (JSONException e) {
 				Log.e(TAG, "", e);
-			}
-			catch (Exception e)
-			{
+			} catch (Exception e) {
 				Log.e(TAG, "", e);
 			}
 
@@ -253,8 +265,7 @@ public class UsersActivity extends Activity implements OnItemClickListener, OnCl
 		}
 
 		@Override
-		protected void onPostExecute(List<User> result)
-		{
+		protected void onPostExecute(List<User> result) {
 			progressBar.setVisibility(View.GONE);
 			listView.setVisibility(View.VISIBLE);
 

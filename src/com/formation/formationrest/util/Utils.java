@@ -1,7 +1,11 @@
 package com.formation.formationrest.util;
 
+import java.util.Iterator;
+import java.util.List;
 import java.util.regex.Pattern;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningTaskInfo;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -47,5 +51,40 @@ public class Utils {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return prefs.getBoolean("isLoggedIn", false);
+	}
+
+	/**
+	 * Get Foreground App Name
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static String getForegroundApp(Context context) {
+		RunningTaskInfo info = null;
+		ActivityManager am;
+		am = (ActivityManager) context
+				.getSystemService(context.ACTIVITY_SERVICE);
+		List<RunningTaskInfo> l = am.getRunningTasks(1000);
+		System.out.println(l);
+		Iterator<RunningTaskInfo> i = l.iterator();
+
+		String packName = new String();
+
+		while (i.hasNext()) {
+			info = i.next();
+			packName = info.topActivity.getPackageName();
+			if (!packName.equals("com.htc.launcher")
+					&& !packName.equals("com.android.launcher")) {
+				packName = info.topActivity.getPackageName();
+				break;
+			}
+			
+			if (i.hasNext()) {
+				info = i.next();
+				packName = info.topActivity.getPackageName();
+			}
+			break;
+		}
+		return packName;
 	}
 }
