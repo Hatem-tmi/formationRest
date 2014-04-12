@@ -2,6 +2,10 @@ package com.formation.formationrest.util;
 
 import java.util.regex.Pattern;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+
 public class Utils {
 
 	/**
@@ -17,5 +21,31 @@ public class Utils {
 						+ "[a-zA-Z0-9][a-zA-Z0-9\\-]{0,25}" + ")+");
 
 		return EMAIL_ADDRESS_PATTERN.matcher(email).matches();
+	}
+
+	/**
+	 * Save User LoggedIn value in Shared-Preferences
+	 * 
+	 * @param context
+	 * @param isLoggedIn
+	 */
+	public static void setUserLoggedIn(Context context, boolean isLoggedIn) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		SharedPreferences.Editor editor = prefs.edit();
+		editor.putBoolean("isLoggedIn", isLoggedIn);
+		editor.commit();
+	}
+
+	/**
+	 * Check if user is logged in from Shared-Preferences
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static boolean isUserLoggedIn(Context context) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return prefs.getBoolean("isLoggedIn", false);
 	}
 }

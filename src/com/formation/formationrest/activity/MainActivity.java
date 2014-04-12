@@ -34,6 +34,10 @@ public class MainActivity extends Activity {
 				String password = passwordEditText.getText().toString();
 
 				if (Utils.isValidEmail(email) && password.equals("admin")) {
+
+					// save user logged-in in Shared-Preferences
+					Utils.setUserLoggedIn(getApplicationContext(), true);
+
 					Intent intent = new Intent(MainActivity.this,
 							UsersActivity.class);
 					startActivity(intent);
@@ -46,5 +50,18 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		// check if user is logged-in from Shared-Preferences
+		if (Utils.isUserLoggedIn(getApplicationContext())) {
+			Intent intent = new Intent(MainActivity.this, UsersActivity.class);
+			startActivity(intent);
+
+			finish();
+		}
 	}
 }
