@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -41,9 +42,11 @@ import com.formation.formationrest.R;
 import com.formation.formationrest.adapter.UsersAdapter;
 import com.formation.formationrest.data.User;
 import com.formation.formationrest.service.UpdaterService;
+import com.formation.formationrest.tasks.DeleteUserTask;
+import com.formation.formationrest.tasks.DeleteUserTask.DeleteUserCallback;
 
 public class UsersActivity extends Activity implements OnItemClickListener,
-		OnClickListener, OnItemLongClickListener {
+		OnClickListener, OnItemLongClickListener, DeleteUserCallback {
 	private static final String TAG = UsersActivity.class.getSimpleName();
 
 	private static final String WS_URL = "http://10.0.2.2/projects/webservice-project/users.php";
@@ -54,6 +57,8 @@ public class UsersActivity extends Activity implements OnItemClickListener,
 	private Button addUserButton;
 	private Button backButton;
 	private Button refreshButton;
+
+	private ProgressDialog progressDialog;
 
 	private UsersAdapter adapter;
 	private List<User> data = new ArrayList<User>();
@@ -154,7 +159,12 @@ public class UsersActivity extends Activity implements OnItemClickListener,
 				new DialogInterface.OnClickListener() {
 					@Override
 					public void onClick(DialogInterface dialog, int id) {
-						removeUser(user);
+
+						showLoadingProgressDialog();
+
+						// invoke delete ws
+						new DeleteUserTask(getApplicationContext(), user
+								.getId(), UsersActivity.this).start();
 					}
 				});
 
@@ -164,12 +174,39 @@ public class UsersActivity extends Activity implements OnItemClickListener,
 		alertDialog.show();
 	}
 
+	/**
+	 * Shows loading progress dialog
+	 * 
+	 * @param activity
+	 */
+	public void showLoadingProgressDialog() {
+		progressDialog = new ProgressDialog(this);
+		progressDialog.setTitle("Loading");
+		progressDialog.setMessage("Veuillez patienter...");
+
+		progressDialog.show();
+	}
+
+	/**
+	 * Dismiss Loading Dialog
+	 * 
+	 * @param activity
+	 */
+	public void dismissLoadingProgressDialog() {
+		if (progressDialog != null)
+			progressDialog.dismiss();
+	}
+
 	@Override
 	public void onItemClick(AdapterView<?> parent, View view, int position,
 			long id) {
 		Toast.makeText(this,
 				String.format("User item at position %s is clicked", position),
 				Toast.LENGTH_SHORT).show();
+
+		Intent intent = new Intent(getApplicationContext(), DetailsUser.class);
+		intent.putExtra("idUser", data.get(position).getId());
+		startActivity(intent);
 	}
 
 	@Override
@@ -273,5 +310,25 @@ public class UsersActivity extends Activity implements OnItemClickListener,
 			data.addAll(result);
 			adapter.notifyDataSetChanged();
 		}
+	}
+
+	@Override
+	public void onSuccessDeletingUser() {
+		Log.d(TAG, "onSuccessDeletingUser");
+		dismissLoadingProgressDialog();
+
+		Toast.makeText(this, "Success deleting user", Toast.LENGTH_SHORT)
+				.show();
+		adapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void onFailedDeletingUser() {
+		Log.d(TAG, "onFailedDeletingUser");
+		dismissLoadingProgressDialog();
+
+		Toast.makeText(this, "Failure deleting user", Toast.LENGTH_SHORT)
+				.show();
+
 	}
 }

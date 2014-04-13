@@ -23,9 +23,8 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
-import android.content.SharedPreferences;
+import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.formation.formationrest.R;
@@ -39,6 +38,7 @@ public class UpdaterService extends Service {
 	private static final String WS_URL = "http://10.0.2.2/projects/webservice-project/users.php";
 	private static final int CONNECTION_TIMEOUT = 5000;
 	private static final int DELAY = 60000; // 1 minute
+	private static int nbreNotification = 0;
 
 	private boolean runFlag = false;
 
@@ -73,25 +73,27 @@ public class UpdaterService extends Service {
 	}
 
 	private void loopInvokeWs() {
-		new Thread() {
-			@Override
-			public void run() {
-				while (runFlag) {
-					Log.d(TAG, "loopInvokeWs running");
+
+		if (this.runFlag) {
+
+			new Handler().postDelayed(new Runnable() {
+
+				@Override
+				public void run() {
+					Log.d(TAG, "loopInvokeWs is running");
 
 					if (!getPackageName().equals(
 							Utils.getForegroundApp(getApplicationContext()))) {
-						sendNotification(countUsers());
+
+						int nbreUsers = countUsers();
+						sendNotification(nbreUsers);
 					}
 
-					try {
-						Thread.sleep(DELAY);
-					} catch (InterruptedException e) {
-					}
+					// loop
+					loopInvokeWs();
 				}
-			}
-
-		}.start();
+			}, DELAY);
+		}
 
 	}
 
@@ -176,10 +178,7 @@ public class UpdaterService extends Service {
 		notification.setLatestEventInfo(getApplicationContext(), contentTitle,
 				contentText, contentIntent);
 
-		SharedPreferences settings = PreferenceManager
-				.getDefaultSharedPreferences(this);
-		if (settings.getString("selectSound", "0").equalsIgnoreCase("1"))
-			notification.defaults |= Notification.DEFAULT_SOUND;
+		notification.defaults |= Notification.DEFAULT_SOUND;
 		notification.defaults |= Notification.DEFAULT_LIGHTS;
 		notification.flags |= Notification.FLAG_AUTO_CANCEL;
 

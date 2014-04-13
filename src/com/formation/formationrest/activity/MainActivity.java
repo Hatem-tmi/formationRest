@@ -35,8 +35,8 @@ public class MainActivity extends Activity {
 
 				if (Utils.isValidEmail(email) && password.equals("admin")) {
 
-					// save user logged-in in Shared-Preferences
-					Utils.setUserLoggedIn(getApplicationContext(), true);
+					// save user email in Shared-Preferences
+					Utils.setUserEmail(getApplicationContext(), email);
 
 					Intent intent = new Intent(MainActivity.this,
 							UsersActivity.class);
@@ -57,7 +57,7 @@ public class MainActivity extends Activity {
 		super.onResume();
 
 		// check if user is logged-in from Shared-Preferences
-		if (Utils.isUserLoggedIn(getApplicationContext())) {
+		if (Utils.getUserEmail(getApplicationContext()) != null) {
 			Intent intent = new Intent(MainActivity.this, UsersActivity.class);
 			startActivity(intent);
 

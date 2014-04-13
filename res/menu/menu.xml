@@ -4,10 +4,10 @@
     <item
         android:id="@+id/startService"
         android:icon="@drawable/ic_launcher"
-        android:title="Start service"/>
+        android:title="@string/startService"/>
     <item
         android:id="@+id/stopService"
         android:icon="@drawable/ic_launcher"
-        android:title="Stop service"/>
+        android:title="@string/stopService"/>
 
 </menu>

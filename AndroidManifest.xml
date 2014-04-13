@@ -31,6 +31,9 @@
         <activity
             android:name="com.formation.formationrest.activity.CreateUserActivity"
             android:screenOrientation="portrait" />
+        <activity
+            android:name="com.formation.formationrest.activity.DetailsUser"
+            android:screenOrientation="portrait" />
 
         <service android:name="com.formation.formationrest.service.UpdaterService" />
     </application>

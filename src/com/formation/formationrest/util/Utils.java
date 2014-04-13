@@ -4,8 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
@@ -36,7 +38,9 @@ public class Utils {
 	public static void setUserLoggedIn(Context context, boolean isLoggedIn) {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
+
 		SharedPreferences.Editor editor = prefs.edit();
+
 		editor.putBoolean("isLoggedIn", isLoggedIn);
 		editor.commit();
 	}
@@ -50,7 +54,37 @@ public class Utils {
 	public static boolean isUserLoggedIn(Context context) {
 		SharedPreferences prefs = PreferenceManager
 				.getDefaultSharedPreferences(context);
+
 		return prefs.getBoolean("isLoggedIn", false);
+	}
+
+	/**
+	 * Save User email value in Shared-Preferences
+	 * 
+	 * @param context
+	 * @param email
+	 */
+	public static void setUserEmail(Context context, String email) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		SharedPreferences.Editor editor = prefs.edit();
+
+		editor.putString("email", email);
+		editor.commit();
+	}
+
+	/**
+	 * Get User email from Shared-Preferences
+	 * 
+	 * @param context
+	 * @return
+	 */
+	public static String getUserEmail(Context context) {
+		SharedPreferences prefs = PreferenceManager
+				.getDefaultSharedPreferences(context);
+
+		return prefs.getString("email", null);
 	}
 
 	/**
@@ -78,7 +112,7 @@ public class Utils {
 				packName = info.topActivity.getPackageName();
 				break;
 			}
-			
+
 			if (i.hasNext()) {
 				info = i.next();
 				packName = info.topActivity.getPackageName();
