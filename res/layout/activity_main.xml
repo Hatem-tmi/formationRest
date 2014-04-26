@@ -5,14 +5,14 @@
     android:orientation="vertical" >
 
     <EditText
-        android:id="@+id/emailEditText"
+        android:id="@+id/loginEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:layout_marginBottom="20dp"
         android:layout_marginTop="20dp"
         android:ems="10"
-        android:inputType="textEmailAddress" >
+        android:inputType="text" >
 
         <requestFocus />
     </EditText>
